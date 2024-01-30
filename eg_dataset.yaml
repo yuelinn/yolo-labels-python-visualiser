@@ -1,0 +1,9 @@
+path: /export/data/linn/bees/data/2021_2022_all_dataset
+
+train: train
+val: val
+test: test
+
+nc: 3
+names: ['honeybee', 'bumblebee', 'unknown']
+class_clrs: ['blue', 'red', 'yellow']  # PIL colours https://github.com/python-pillow/Pillow/blob/12028c9789c3c6ac15eb147a092bfc463ebbc398/src/PIL/ImageColor.py

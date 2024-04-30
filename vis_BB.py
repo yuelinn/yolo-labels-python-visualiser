@@ -53,12 +53,12 @@ def draw_bbs(images_dir, labels_dir, output_dir, classes_yaml, show_text):
 
     if nc != len(names):
         raise ValueError(
-            f"number of classes (nc={nc}) does not match number of class names (names={names}) in cfg {classes_cfg}!"
+            f"number of classes (nc={nc}) does not match number of class names (names={names}) in cfg {classes_yaml}!"
         )
 
     if len(class_clrs) != len(names):
         raise ValueError(
-            f"number of colors does not match number of class names in cfg {classes_cfg}!"
+            f"number of colors does not match number of class names in cfg {classes_yaml}!"
         )
 
     if show_text:
@@ -68,13 +68,21 @@ def draw_bbs(images_dir, labels_dir, output_dir, classes_yaml, show_text):
     else:
         font_pil = None
 
+    max_w = 0 # DBG
+    max_h = 0 # DBG
+
     for filename in tqdm(filenames):
         try:
             img = Image.open(os.path.join(images_dir, filename))
         except:
             print(f"Skipping {filename} because PIL cannot read file as image.")
 
-        f = open(os.path.join(labels_dir, Path(filename).stem + ".txt"), "r")
+        # check if label exists. if not, just skip
+        fp = os.path.join(labels_dir, Path(filename).stem + ".txt")
+        if not os.path.isfile(fp):
+            print(f"Skipping file {filename} since label is not found")
+            continue
+        f = open(fp, "r")
         img = ImageOps.exif_transpose(
             img
         )  # for smartphone images to be oriented correctly
@@ -115,8 +123,11 @@ def draw_bbs(images_dir, labels_dir, output_dir, classes_yaml, show_text):
                     (x_min, y_min - font_size - dt), name, font=font_pil, fill=clr_str
                 )
 
-            img.save(os.path.join(output_dir, filename))
+            max_w = max(max_w, x_max - x_min)
+            max_h = max(max_h, y_max - y_min)
 
+        img.save(os.path.join(output_dir, filename))
+    print(f"max w: {max_w}, h: {max_h}")
 
 if __name__ == "__main__":
     draw_bbs()
